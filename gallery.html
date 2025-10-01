@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dog Gallery</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f9f9f9;
+    }
+
+    /* Stylish Navbar (same as home.html) */
+    nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      background: linear-gradient(45deg, #ff6b6b, #ffcc70);
+      padding: 15px 0;
+      text-align: center;
+      z-index: 1000;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    }
+    nav a {
+      color: white;
+      text-decoration: none;
+      margin: 0 25px;
+      font-weight: bold;
+      font-size: 20px;
+      position: relative;
+      padding: 10px;
+      transition: all 0.3s ease;
+    }
+    nav a::after {
+      content: "";
+      position: absolute;
+      width: 0;
+      height: 3px;
+      left: 50%;
+      bottom: 0;
+      background: white;
+      transition: 0.3s ease;
+    }
+    nav a:hover {
+      color: black;
+    }
+    nav a:hover::after {
+      width: 100%;
+      left: 0;
+    }
+
+    .content {
+      padding: 100px 20px;
+      max-width: 1200px;
+      margin: auto;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 40px;
+      font-size: 32px;
+      color: #333;
+    }
+
+    /* Gallery grid */
+    .gallery {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+
+    .card {
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      padding: 10px;
+      text-align: center;
+      transition: transform 0.3s;
+      background: #fff;
+      cursor: pointer;
+    }
+
+    .card:hover {
+      transform: scale(1.05);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    }
+
+    .card img {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+      border-radius: 5px;
+    }
+
+    /* Dog info styling */
+    .dog-name {
+      font-size: 20px;
+      font-weight: bold;
+      color: green;
+      text-transform: uppercase;
+      margin-top: 10px;
+      animation: glow 1.5s infinite alternate, bounce 2s infinite;
+    }
+
+    .dog-years,
+    .dog-dob {
+      font-size: 14px;
+      color: #444;
+      margin: 3px 0;
+    }
+
+    /* Glow effect */
+    @keyframes glow {
+      from { text-shadow: 0 0 5px lime, 0 0 10px lightgreen; }
+      to { text-shadow: 0 0 15px green, 0 0 25px limegreen; }
+    }
+
+    /* Bounce animation */
+    @keyframes bounce {
+      0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+      40% { transform: translateY(-8px); }
+      60% { transform: translateY(-4px); }
+    }
+
+    /* Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 2000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+    }
+
+    .modal-content {
+      background: #fff;
+      margin: 5% auto;
+      padding: 20px;
+      border-radius: 10px;
+      max-width: 700px;
+      position: relative;
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from {opacity: 0; transform: scale(0.9);}
+      to {opacity: 1; transform: scale(1);}
+    }
+
+    .modal img {
+      width: 100%;
+      max-height: 400px;
+      object-fit: cover;
+      border-radius: 8px;
+      margin-bottom: 15px;
+    }
+
+    .modal h2 {
+      margin: 10px 0;
+      color: green;
+    }
+
+    .modal p {
+      margin: 6px 0;
+    }
+
+    .close {
+      position: absolute;
+      top: 10px;
+      right: 20px;
+      font-size: 28px;
+      font-weight: bold;
+      color: #333;
+      cursor: pointer;
+    }
+
+    .close:hover {
+      color: red;
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <a href="home.html">🏡 Home</a>
+    <a href="trade.html">🐶 Dog Trade</a>
+    <a href="gallery.html">🖼️ Gallery</a>
+    <a href="contact.html">📞 Contact</a>
+  </nav>
+
+  <div class="content">
+    <h1>Dog Gallery</h1>
+    <div class="gallery" id="dogGallery"></div>
+  </div>
+
+  <!-- Modal -->
+  <div id="dogModal" class="modal">
+    <div class="modal-content">
+      <span class="close" id="closeModal">&times;</span>
+      <img id="modalImg" src="" alt="Dog">
+      <h2 id="modalName"></h2>
+      <p><strong>ID:</strong> <span id="modalId"></span></p>
+      <p><strong>Years:</strong> <span id="modalYears"></span></p>
+      <p><strong>Date of Birth:</strong> <span id="modalDob"></span></p>
+      <p><strong>Quality of Life:</strong> <span id="modalQuality"></span></p>
+      <p><strong>Owner Phone:</strong> <span id="modalPhone"></span></p>
+      <p><strong>Description:</strong> <span id="modalDesc"></span></p>
+    </div>
+  </div>
+
+  <script>
+    const dogGallery = document.getElementById("dogGallery");
+    const dogModal = document.getElementById("dogModal");
+    const closeModal = document.getElementById("closeModal");
+
+    const modalImg = document.getElementById("modalImg");
+    const modalName = document.getElementById("modalName");
+    const modalId = document.getElementById("modalId");
+    const modalYears = document.getElementById("modalYears");
+    const modalDob = document.getElementById("modalDob");
+    const modalQuality = document.getElementById("modalQuality");
+    const modalPhone = document.getElementById("modalPhone");
+    const modalDesc = document.getElementById("modalDesc");
+
+    const dogImages = [
+      "https://images.unsplash.com/photo-1558788353-f76d92427f16",
+      "https://images.unsplash.com/photo-1518717758536-85ae29035b6d",
+      "https://images.unsplash.com/photo-1517849845537-4d257902454a",
+      "https://images.unsplash.com/photo-1517423440428-a5a00ad493e8",
+      "https://images.unsplash.com/photo-1507149833265-60c372daea22",
+      "https://images.unsplash.com/photo-1525253086316-d0c936c814f8",
+      "https://images.unsplash.com/photo-1537151625747-768eb6cf92b6",
+      "https://images.unsplash.com/photo-1518020382113-a7e8fc38eac9",
+      "https://images.unsplash.com/photo-1568572933382-74d440642117",
+      "https://images.unsplash.com/photo-1583337130417-3346a1d3a5da"
+    ];
+
+    const dogNames = ["Bob", "Bella", "Max", "Charlie", "Lucy", "Rocky", "Milo", "Daisy", "Oscar", "Luna"];
+
+    for (let i = 1; i <= 90; i++) {
+      const img = dogImages[i % dogImages.length];
+      const years = Math.floor(Math.random() * 15) + 1;
+      const dob = `${Math.floor(Math.random() * 28) + 1}/${Math.floor(Math.random() * 12) + 1}/${2010 + Math.floor(Math.random() * 10)}`;
+      const quality = ["Excellent", "Good", "Average", "High"][Math.floor(Math.random() * 4)];
+      const phone = "+25078" + Math.floor(100000 + Math.random() * 900000);
+      const desc = "This dog is loving, playful, and a great companion.";
+
+      const dogName = dogNames[i % dogNames.length];
+
+      // Create card
+      const card = document.createElement("div");
+      card.classList.add("card");
+      card.innerHTML = `
+        <img src="${img}?w=400&h=300&fit=crop" alt="${dogName}">
+        <div class="dog-info">
+          <div class="dog-name">${dogName}</div>
+          <div class="dog-years">${years} years old</div>
+          <div class="dog-dob">Born: ${dob}</div>
+        </div>
+      `;
+
+      // Click event for modal
+      card.addEventListener("click", () => {
+        modalImg.src = img + "?w=700&h=500&fit=crop";
+        modalName.textContent = dogName;
+        modalId.textContent = "D" + (1000 + i);
+        modalYears.textContent = years + " years";
+        modalDob.textContent = dob;
+        modalQuality.textContent = quality;
+        modalPhone.textContent = phone;
+        modalDesc.textContent = desc;
+        dogModal.style.display = "block";
+      });
+
+      dogGallery.appendChild(card);
+    }
+
+    closeModal.onclick = () => { dogModal.style.display = "none"; };
+    window.onclick = (event) => { if (event.target == dogModal) { dogModal.style.display = "none"; } };
+  </script>
+</body>
+</html>
